@@ -135,7 +135,7 @@ function movePaddleAI() {
     if (balls.length > 0) {
         let targetBall = getTargetBall();
         if (targetBall) {
-            let targetX = targetBall.x - paddleWidth / 2;
+            let targetX = predictBallLandingX(targetBall);
             if (targetX < paddle.x) {
                 paddle.x -= aiSpeed;
             } else if (targetX > paddle.x) {
@@ -148,6 +148,19 @@ function movePaddleAI() {
             }
         }
     }
+}
+
+// Predict where the ball will land on the bottom of the screen
+function predictBallLandingX(ball) {
+    let predictedX = ball.x + (canvas.height - ball.y) * (ball.dx / ball.dy);
+    while (predictedX < 0 || predictedX > canvas.width) {
+        if (predictedX < 0) {
+            predictedX = -predictedX;
+        } else if (predictedX > canvas.width) {
+            predictedX = 2 * canvas.width - predictedX;
+        }
+    }
+    return predictedX;
 }
 
 // Get the ball most likely to go out of bounds next
