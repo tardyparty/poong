@@ -4,6 +4,7 @@ const ctx = canvas.getContext('2d');
 const paddleWidth = 100;
 const paddleHeight = 10;
 const ballRadius = 10;
+const maxBalls = 10;
 
 let paddle = { x: canvas.width / 2 - paddleWidth / 2, y: canvas.height - paddleHeight - 10 };
 let balls = [{ x: canvas.width / 2, y: canvas.height / 2, dx: 2, dy: 2 }];
@@ -62,7 +63,7 @@ function updateBalls() {
         ) {
             ball.dy = -ball.dy;
             score++;
-            if (score % 5 === 0) {
+            if (score % 5 === 0 && balls.length < maxBalls) {
                 addBall();
             }
         }
@@ -84,4 +85,9 @@ function addBall() {
     });
 }
 
-setInterval(draw, 10);
+function gameLoop() {
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
