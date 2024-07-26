@@ -6,24 +6,31 @@ const paddleHeight = 10;
 const ballRadius = 10;
 const maxBalls = 10;
 const initialBallSpeed = 4;
-const paddleSpeed = 30;
 
 let paddle = { x: canvas.width / 2 - paddleWidth / 2, y: canvas.height - paddleHeight - 10 };
 let balls = [];
 let score = 0;
 let gameRunning = false;
+let mouseLocked = false;
 
-document.addEventListener('keydown', handleKeydown);
+canvas.addEventListener('mousemove', handleMouseMove);
+canvas.addEventListener('mousedown', startGame);
 
-function handleKeydown(e) {
-    const key = e.key;
-    if (key === 'ArrowLeft' && paddle.x > 0) {
-        paddle.x -= paddleSpeed;
-    } else if (key === 'ArrowRight' && paddle.x < canvas.width - paddleWidth) {
-        paddle.x += paddleSpeed;
+function handleMouseMove(e) {
+    if (mouseLocked) {
+        const rect = canvas.getBoundingClientRect();
+        paddle.x = e.clientX - rect.left - paddleWidth / 2;
+        if (paddle.x < 0) {
+            paddle.x = 0;
+        } else if (paddle.x + paddleWidth > canvas.width) {
+            paddle.x = canvas.width - paddleWidth;
+        }
     }
+}
 
-    if (!gameRunning && (key === 'ArrowLeft' || key === 'ArrowRight')) {
+function startGame() {
+    if (!gameRunning) {
+        mouseLocked = true;
         gameRunning = true;
         addBall();
         requestAnimationFrame(gameLoop);
@@ -95,6 +102,7 @@ function addBall() {
 
 function endGame() {
     gameRunning = false;
+    mouseLocked = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#fff';
     ctx.font = '48px Arial';
