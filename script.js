@@ -5,19 +5,26 @@ const paddleWidth = 100;
 const paddleHeight = 10;
 const ballRadius = 10;
 const maxBalls = 10;
+const initialBallSpeed = 3;
 
 let paddle = { x: canvas.width / 2 - paddleWidth / 2, y: canvas.height - paddleHeight - 10 };
-let balls = [{ x: canvas.width / 2, y: canvas.height / 2, dx: 2, dy: 2 }];
+let balls = [{ x: canvas.width / 2, y: canvas.height / 2, dx: initialBallSpeed, dy: initialBallSpeed }];
 let score = 0;
+let gameRunning = false;
 
-document.addEventListener('keydown', movePaddle);
+document.addEventListener('keydown', handleKeydown);
 
-function movePaddle(e) {
+function handleKeydown(e) {
     const key = e.key;
     if (key === 'ArrowLeft' && paddle.x > 0) {
         paddle.x -= 20;
     } else if (key === 'ArrowRight' && paddle.x < canvas.width - paddleWidth) {
         paddle.x += 20;
+    }
+
+    if (!gameRunning && (key === 'ArrowLeft' || key === 'ArrowRight')) {
+        gameRunning = true;
+        requestAnimationFrame(gameLoop);
     }
 }
 
@@ -63,15 +70,14 @@ function updateBalls() {
         ) {
             ball.dy = -ball.dy;
             score++;
-            if (score % 5 === 0 && balls.length < maxBalls) {
+            if (score % 3 === 0 && balls.length < maxBalls) {
                 addBall();
             }
         }
 
         // Ball out of bounds (lose condition)
         if (ball.y - ballRadius > canvas.height) {
-            alert('Game Over! Your score is ' + score);
-            document.location.reload();
+            endGame();
         }
     });
 }
@@ -80,14 +86,26 @@ function addBall() {
     balls.push({
         x: canvas.width / 2,
         y: canvas.height / 2,
-        dx: 2 * (Math.random() > 0.5 ? 1 : -1),
-        dy: 2 * (Math.random() > 0.5 ? 1 : -1)
+        dx: initialBallSpeed * (Math.random() > 0.5 ? 1 : -1),
+        dy: initialBallSpeed * (Math.random() > 0.5 ? 1 : -1)
     });
 }
 
-function gameLoop() {
-    draw();
-    requestAnimationFrame(gameLoop);
+function endGame() {
+    gameRunning = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#fff';
+    ctx.font = '48px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Game Over! Score: ${score}`, canvas.width / 2, canvas.height / 2);
 }
 
-gameLoop();
+function gameLoop() {
+    if (gameRunning) {
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+}
+
+// Initial draw to display the paddle and initial ball before game starts
+draw();
