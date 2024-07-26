@@ -5,10 +5,11 @@ const paddleWidth = 100;
 const paddleHeight = 10;
 const ballRadius = 10;
 const maxBalls = 10;
-const initialBallSpeed = 3;
+const initialBallSpeed = 4;
+const paddleSpeed = 30;
 
 let paddle = { x: canvas.width / 2 - paddleWidth / 2, y: canvas.height - paddleHeight - 10 };
-let balls = [{ x: canvas.width / 2, y: canvas.height / 2, dx: initialBallSpeed, dy: initialBallSpeed }];
+let balls = [];
 let score = 0;
 let gameRunning = false;
 
@@ -17,13 +18,14 @@ document.addEventListener('keydown', handleKeydown);
 function handleKeydown(e) {
     const key = e.key;
     if (key === 'ArrowLeft' && paddle.x > 0) {
-        paddle.x -= 20;
+        paddle.x -= paddleSpeed;
     } else if (key === 'ArrowRight' && paddle.x < canvas.width - paddleWidth) {
-        paddle.x += 20;
+        paddle.x += paddleSpeed;
     }
 
     if (!gameRunning && (key === 'ArrowLeft' || key === 'ArrowRight')) {
         gameRunning = true;
+        addBall();
         requestAnimationFrame(gameLoop);
     }
 }
@@ -85,7 +87,7 @@ function updateBalls() {
 function addBall() {
     balls.push({
         x: canvas.width / 2,
-        y: canvas.height / 2,
+        y: 50,
         dx: initialBallSpeed * (Math.random() > 0.5 ? 1 : -1),
         dy: initialBallSpeed * (Math.random() > 0.5 ? 1 : -1)
     });
@@ -98,6 +100,7 @@ function endGame() {
     ctx.font = '48px Arial';
     ctx.textAlign = 'center';
     ctx.fillText(`Game Over! Score: ${score}`, canvas.width / 2, canvas.height / 2);
+    balls = [];
 }
 
 function gameLoop() {
@@ -107,5 +110,5 @@ function gameLoop() {
     }
 }
 
-// Initial draw to display the paddle and initial ball before game starts
+// Initial draw to display the paddle before game starts
 draw();
