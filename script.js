@@ -85,7 +85,3 @@ function addBall() {
 }
 
 setInterval(draw, 10);
-
-}
-
-setInterval(draw, 10);
