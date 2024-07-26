@@ -1,5 +1,6 @@
 body {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -9,4 +10,10 @@ body {
 
 canvas {
     border: 2px solid #fff;
+}
+
+#scoreboard {
+    color: #fff;
+    font-size: 24px;
+    margin-top: 20px;
 }
