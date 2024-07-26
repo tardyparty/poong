@@ -6,18 +6,20 @@ const paddleHeight = 10;
 const ballRadius = 10;
 const maxBalls = 10;
 const initialBallSpeed = 4;
+const aiSpeed = 5; // AI paddle movement speed
 
 let paddle = { x: canvas.width / 2 - paddleWidth / 2, y: canvas.height - paddleHeight - 10 };
 let balls = [];
 let score = 0;
+let highScore = 0;
 let gameRunning = false;
-let mouseLocked = false;
+let isAITurn = false;
 
 canvas.addEventListener('mousemove', handleMouseMove);
 canvas.addEventListener('mousedown', startGame);
 
 function handleMouseMove(e) {
-    if (mouseLocked) {
+    if (gameRunning && !isAITurn) {
         const rect = canvas.getBoundingClientRect();
         paddle.x = e.clientX - rect.left - paddleWidth / 2;
         if (paddle.x < 0) {
@@ -30,7 +32,6 @@ function handleMouseMove(e) {
 
 function startGame() {
     if (!gameRunning) {
-        mouseLocked = true;
         gameRunning = true;
         addBall();
         requestAnimationFrame(gameLoop);
@@ -55,7 +56,7 @@ function draw() {
     drawPaddle();
     balls.forEach(drawBall);
     updateBalls();
-    document.getElementById('scoreboard').textContent = `Score: ${score}`;
+    document.getElementById('scoreboard').textContent = `Score: ${score} | High Score: ${highScore} | ${isAITurn ? 'AI' : 'Player'}'s Turn`;
 }
 
 function updateBalls() {
@@ -102,21 +103,53 @@ function addBall() {
 
 function endGame() {
     gameRunning = false;
-    mouseLocked = false;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#fff';
-    ctx.font = '48px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(`Game Over! Score: ${score}`, canvas.width / 2, canvas.height / 2);
+    if (score > highScore) {
+        highScore = score;
+    }
+    score = 0;
     balls = [];
+    isAITurn = !isAITurn;
+    if (isAITurn) {
+        startGame();
+    } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#fff';
+        ctx.font = '48px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Player\'s Turn', canvas.width / 2, canvas.height / 2);
+    }
 }
 
 function gameLoop() {
     if (gameRunning) {
         draw();
+        if (isAITurn) {
+            movePaddleAI();
+        }
         requestAnimationFrame(gameLoop);
     }
 }
 
+// Simple AI to move paddle
+function movePaddleAI() {
+    if (balls.length > 0) {
+        let targetX = balls[0].x - paddleWidth / 2;
+        if (targetX < paddle.x) {
+            paddle.x -= aiSpeed;
+        } else if (targetX > paddle.x) {
+            paddle.x += aiSpeed;
+        }
+        if (paddle.x < 0) {
+            paddle.x = 0;
+        } else if (paddle.x + paddleWidth > canvas.width) {
+            paddle.x = canvas.width - paddleWidth;
+        }
+    }
+}
+
 // Initial draw to display the paddle before game starts
-draw();
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+ctx.fillStyle = '#fff';
+ctx.font = '48px Arial';
+ctx.textAlign = 'center';
+ctx.fillText('Player\'s Turn', canvas.width / 2, canvas.height / 2);
