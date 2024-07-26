@@ -133,18 +133,35 @@ function gameLoop() {
 // Simple AI to move paddle
 function movePaddleAI() {
     if (balls.length > 0) {
-        let targetX = balls[0].x - paddleWidth / 2;
-        if (targetX < paddle.x) {
-            paddle.x -= aiSpeed;
-        } else if (targetX > paddle.x) {
-            paddle.x += aiSpeed;
-        }
-        if (paddle.x < 0) {
-            paddle.x = 0;
-        } else if (paddle.x + paddleWidth > canvas.width) {
-            paddle.x = canvas.width - paddleWidth;
+        let targetBall = getTargetBall();
+        if (targetBall) {
+            let targetX = targetBall.x - paddleWidth / 2;
+            if (targetX < paddle.x) {
+                paddle.x -= aiSpeed;
+            } else if (targetX > paddle.x) {
+                paddle.x += aiSpeed;
+            }
+            if (paddle.x < 0) {
+                paddle.x = 0;
+            } else if (paddle.x + paddleWidth > canvas.width) {
+                paddle.x = canvas.width - paddleWidth;
+            }
         }
     }
+}
+
+// Get the ball most likely to go out of bounds next
+function getTargetBall() {
+    let minDistance = Infinity;
+    let targetBall = null;
+    balls.forEach(ball => {
+        let distance = canvas.height - ball.y;
+        if (distance < minDistance && ball.dy > 0) {
+            minDistance = distance;
+            targetBall = ball;
+        }
+    });
+    return targetBall;
 }
 
 // Initial draw to display the paddle before game starts
